@@ -1,0 +1,26 @@
+{
+  "name": "home-insurance-quote-api",
+  "version": "1.0.0",
+  "description": "Home insurance quote request API (Express)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "lint:security": "eslint src",
+    "audit": "npm audit"
+  },
+  "keywords": [
+    "express",
+    "insurance",
+    "security"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.22.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-plugin-security": "^4.0.1"
+  }
+}
