@@ -1,63 +1,65 @@
+"""Command-line entry point for the insurance claim processor.
+
+Usage:
+    python process_claims.py [path/to/claims.csv]
+
+Prints the total approved claim amount per policy and reports any rows that
+were skipped because of invalid policy numbers or malformed data.
+"""
+
+from __future__ import annotations
+
+import argparse
 import sys
 
-# Legacy insurance claim processor.
-# Reads a CSV of claims and prints the total approved amount per policy.
+from claims_processor import process_claims
 
-claims = []
-
-
-def load(path):
-    f = open(path)
-    lines = f.readlines()
-    f.close()
-    for i in range(len(lines)):
-        if i == 0:
-            continue
-        line = lines[i]
-        line = line.replace("\n", "")
-        parts = line.split(",")
-        row = {}
-        row["claim_id"] = parts[0]
-        row["policy_number"] = parts[1]
-        row["claimant_name"] = parts[2]
-        row["claim_amount"] = parts[3]
-        row["claim_date"] = parts[4]
-        row["status"] = parts[5]
-        claims.append(row)
+DEFAULT_CSV = "data/sample_claims.csv"
 
 
-def get_policies():
-    policies = []
-    for c in claims:
-        found = False
-        for p in policies:
-            if p == c["policy_number"]:
-                found = True
-        if found == False:
-            policies.append(c["policy_number"])
-    return policies
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Process insurance claim CSV data.")
+    parser.add_argument(
+        "csv_path",
+        nargs="?",
+        default=DEFAULT_CSV,
+        help=f"Path to the claims CSV file (default: {DEFAULT_CSV})",
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Exit with a non-zero status if any row fails validation.",
+    )
+    return parser.parse_args(argv)
 
 
-def total_for_policy(policy):
-    total = 0
-    for c in claims:
-        if c["policy_number"] == policy:
-            if c["status"] == "approved":
-                total = total + float(c["claim_amount"])
-    return total
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+
+    try:
+        result = process_claims(args.csv_path)
+    except FileNotFoundError:
+        print(f"error: file not found: {args.csv_path}", file=sys.stderr)
+        return 2
+
+    for policy in sorted(result.summaries):
+        summary = result.summaries[policy]
+        print(
+            f"{policy}: {summary.approved_total} "
+            f"({summary.approved_count}/{summary.claim_count} approved)"
+        )
+
+    print(f"\nTotal approved across all policies: {result.total_approved}")
+
+    if result.errors:
+        print(f"\nSkipped {len(result.errors)} invalid row(s):", file=sys.stderr)
+        for error in result.errors:
+            print(f"  - {error}", file=sys.stderr)
+        if args.strict:
+            return 1
+
+    return 0
 
 
-def main():
-    path = "data/sample_claims.csv"
-    if len(sys.argv) > 1:
-        path = sys.argv[1]
-    load(path)
-    policies = get_policies()
-    report = ""
-    for p in policies:
-        t = total_for_policy(p)
-        report = report + p + ": " + str(t) + "\n"
-    print(report)
-
-
-main()
+if __name__ == "__main__":
+    raise SystemExit(main())
