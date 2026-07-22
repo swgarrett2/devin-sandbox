@@ -1,0 +1,11 @@
+claim_id,policy_number,claimant_name,claim_amount,claim_date,status
+C0001,POL-1002003,Alice Johnson,1250.50,2024-01-15,approved
+C0002,POL-1002003,Alice Johnson,320.00,2024-02-02,approved
+C0003,POL-2003004,Bob Smith,875.25,2024-01-20,pending
+C0004,POL-2003004,Bob Smith,140.75,2024-03-11,denied
+C0005,POL-3004005,Carla Diaz,4300.00,2024-02-18,approved
+C0006,BADPOLICY,Dan Lee,900.00,2024-02-19,approved
+C0007,POL-4005006,Eve Martin,2210.10,2024-03-01,approved
+C0008,POL-4005006,Eve Martin,,2024-03-05,pending
+C0009,POL-5006007,Frank Ochoa,60.00,2024-03-09,approved
+C0010,POL-500600,Grace Kim,510.00,2024-03-15,approved
